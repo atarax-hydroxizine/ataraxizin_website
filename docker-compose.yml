@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: news-db
+    environment:
+      POSTGRES_DB: newsdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - news-network
+
+  app:
+    build: .
+    container_name: news-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: "postgresql://postgres:password@postgres:5432/newsdb"
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    networks:
+      - news-network
+
+volumes:
+  postgres_data:
+
+networks:
+  news-network:
+    driver: bridge
